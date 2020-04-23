@@ -1,0 +1,17 @@
+{
+    "title": "'Adgemin' マインクラフト アドオン テンプレート生成ソフト",
+    "credit": "Created by eleven-junichi2",
+    "input_addon_name": "制作するアドオンの名前を入力してください> ",
+    "input_author_name": "作者名を入力してください> ",
+    "input_location": "アドオンのテンプレートを生成するフォルダのパスを入力してください",
+    "if_you_enter_nothing": "何も入力せずに続けると以下の場所に生成されます↓",
+    "directory_not_exists": "このフォルダは存在しません\n",
+    "location_not_dir": "このパスはディレクトリを指していません\n",
+    "result_addon_name": "アドオン名:",
+    "result_author_name": "作者名:",
+    "successfully": "次の場所に生成しました:",
+    "exit": "入力するとこのアプリケーションを終了します> ",
+    "conf_err": "config.jsonの設定が正しくありません",
+    "conf_err_how_to_solve": "config.jsonをテキストエディタで開いて修正してください",
+    "conf_err_gen_location": "generating_locationに設定されているパスが正しくありません:"
+}
