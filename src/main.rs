@@ -1,4 +1,3 @@
-use serde_json::Result;
 use std::collections::HashMap;
 use std::env;
 use std::fs::File;
@@ -26,11 +25,11 @@ fn behavior_pack_manifest() {}
 
 fn resource_pack_manifest() {}
 
-fn load_translation() -> HashMap<String, String> {
+fn load_translation(language: &str) -> HashMap<String, String> {
     // let current_dir = &env::current_dir().unwrap();
     let current_dir = path::Path::new(&env::current_dir().unwrap())
         .join("translation")
-        .join("jp.json");
+        .join(format!("{}.json", language));
     println!("debubbbgggg {:?}", current_dir);
     let config_file = File::open(current_dir).unwrap();
     let reader = BufReader::new(config_file);
@@ -40,18 +39,17 @@ fn load_translation() -> HashMap<String, String> {
 }
 
 fn navigate() {
-    let tl = load_translation();
-    println!("{:?}", load_translation());
+    let tl = load_translation("jp");
     println!("{}", tl["title"]);
     println!("{}", tl["credit"]);
 
-    print!("What is your addon name?>");
+    print!("{}", tl["input_addon_name"]);
     io::stdout().flush().unwrap();
     let mut addon_name = String::new();
     io::stdin().read_line(&mut addon_name).unwrap();
     let addon_name = addon_name.trim();
 
-    print!("What is your name as author of your addon?>");
+    print!("{}", tl["input_author_name"]);
     io::stdout().flush().unwrap();
     let mut author_name = String::new();
     io::stdin().read_line(&mut author_name).unwrap();
@@ -62,16 +60,16 @@ fn navigate() {
         author_name,
     };
 
-    println!("Where do you want to generate this addon template?");
-    println!("If you enter nothing, the location will be:");
+    println!("{}", tl["input_location"]);
+    println!("{}", tl["if_you_enter_nothing"]);
     print!("{}>", "addon_template_path");
     io::stdout().flush().unwrap();
     let mut where_to_generate = String::new();
     io::stdin().read_line(&mut where_to_generate).unwrap();
 
     println!("---");
-    println!("Addon's name: {}", new_addon.addon_name);
-    println!("Author: {}", new_addon.author_name);
+    println!("{} {}", tl["result_addon_name"], new_addon.addon_name);
+    println!("{} {}", tl["result_author_name"], new_addon.author_name);
     println!("---");
 }
 
