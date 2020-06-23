@@ -1,4 +1,10 @@
+use serde_json::Result;
+use std::collections::HashMap;
+use std::env;
+use std::fs::File;
+use std::io::BufReader;
 use std::io::{self, Write};
+use std::path;
 
 struct Config<'a> {
     language: &'a str,
@@ -10,9 +16,34 @@ struct AddonTemplate<'a> {
     author_name: &'a str,
 }
 
+fn generate_addon() {}
+
+fn generate_behavior_pack() {}
+
+fn generate_resource_pack() {}
+
+fn behavior_pack_manifest() {}
+
+fn resource_pack_manifest() {}
+
+fn load_translation() -> HashMap<String, String> {
+    // let current_dir = &env::current_dir().unwrap();
+    let current_dir = path::Path::new(&env::current_dir().unwrap())
+        .join("translation")
+        .join("jp.json");
+    println!("debubbbgggg {:?}", current_dir);
+    let config_file = File::open(current_dir).unwrap();
+    let reader = BufReader::new(config_file);
+    let tl: HashMap<String, String> = serde_json::from_reader(reader).unwrap();
+    return tl;
+    // return HashMap::new();
+}
+
 fn navigate() {
-    println!("'Adgemin' マインクラフト アドオン テンプレート生成ソフト");
-    println!("Created by eleven-junichi2");
+    let tl = load_translation();
+    println!("{:?}", load_translation());
+    println!("{}", tl["title"]);
+    println!("{}", tl["credit"]);
 
     print!("What is your addon name?>");
     io::stdout().flush().unwrap();
