@@ -25,21 +25,22 @@ fn behavior_pack_manifest() {}
 
 fn resource_pack_manifest() {}
 
-fn load_translation(language: &str) -> HashMap<String, String> {
-    // let current_dir = &env::current_dir().unwrap();
-    let current_dir = path::Path::new(&env::current_dir().unwrap())
-        .join("translation")
-        .join(format!("{}.json", language));
-    println!("debubbbgggg {:?}", current_dir);
-    let config_file = File::open(current_dir).unwrap();
+fn load_translation(language: &str, file_dir: &path::Path) -> HashMap<String, String> {
+    let translation_file = file_dir.join(format!("{}.json", language));
+    println!("debug: {:?}", &translation_file);
+    let config_file = File::open(translation_file).unwrap();
     let reader = BufReader::new(config_file);
     let tl: HashMap<String, String> = serde_json::from_reader(reader).unwrap();
     return tl;
-    // return HashMap::new();
 }
 
 fn navigate() {
-    let tl = load_translation("jp");
+    println!("cur_exe: {:?}", env::current_exe().unwrap());
+    let translation_file_dir = path::Path::new(&env::current_exe().unwrap())
+        .parent()
+        .unwrap()
+        .join("translation");
+    let tl = load_translation("jp", &translation_file_dir);
     println!("{}", tl["title"]);
     println!("{}", tl["credit"]);
 
