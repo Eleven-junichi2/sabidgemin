@@ -8,17 +8,19 @@ use std::path;
 struct AddonTemplate<'a> {
     addon_name: &'a str,
     author_name: &'a str,
+    where_to_make: &'a path::Path,
+    using_template_path: &'a path::Path,
 }
 
-fn generate_addon() {}
+impl<'a> AddonTemplate<'a> {
+    fn generate_addon(self) {}
 
-fn generate_behavior_pack() {}
+    fn generate_behavior_pack(self) {}
 
-fn generate_resource_pack() {}
-
-fn behavior_pack_manifest() {}
-
-fn resource_pack_manifest() {}
+    fn generate_resource_pack(self) {}
+    fn behavior_pack_manifest(self) {}
+    fn resource_pack_manifest(self) {}
+}
 
 fn load_config(file_dir: &path::Path) -> HashMap<String, String> {
     let file_path = file_dir.join("config.json");
@@ -37,11 +39,8 @@ fn load_translation(language: &str, file_dir: &path::Path) -> HashMap<String, St
 }
 
 fn navigate() {
-    let config = load_config(
-        &path::Path::new(&env::current_exe().unwrap())
-            .parent()
-            .unwrap(),
-    );
+    let cur_exe_dir = &env::current_exe().unwrap();
+    let config = load_config(&path::Path::new(&cur_exe_dir).parent().unwrap());
     println!("cur_exe: {:?}", env::current_exe().unwrap());
     let translation_file_dir = path::Path::new(&env::current_exe().unwrap())
         .parent()
@@ -62,10 +61,13 @@ fn navigate() {
     let mut author_name = String::new();
     io::stdin().read_line(&mut author_name).unwrap();
     let author_name = author_name.trim();
-
+    let where_to_make = path::Path::new(&cur_exe_dir).parent().unwrap();
+    let using_template_path = path::Path::new(&cur_exe_dir).parent().unwrap();
     let new_addon = AddonTemplate {
         addon_name,
         author_name,
+        where_to_make,
+        using_template_path,
     };
 
     println!("{}", tl["input_location"]);
