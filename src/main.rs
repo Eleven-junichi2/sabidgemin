@@ -6,6 +6,7 @@ use std::fs;
 use std::io::BufReader;
 use std::io::{self, Write};
 use std::path;
+use std::ffi::OsString;
 use uuid::Uuid;
 
 struct AddonTemplate<'a> {
@@ -153,29 +154,35 @@ fn navigate() {
     let mut author_name = String::new();
     io::stdin().read_line(&mut author_name).unwrap();
     let author_name = author_name.trim();
-    let where_to_make = path::Path::new(&config["generating_location"]);
+    path::Path::new(&config["generating_location"]);
     let using_template_dir = &path::Path::new(&cur_exe_dir)
         .parent()
         .unwrap()
         .join("addon_template");
-    println!("using_tmplt_pth: {:?}", &using_template_dir);
+    println!("{}", tl["input_location"]);
+    println!("{}", tl["if_you_enter_nothing"]);
+    print!("{}>", &config["generating_location"]);
+    io::stdout().flush().unwrap();
+    let mut input = String::new();
+    io::stdin().read_line(&mut input).unwrap();
+    let input_where_to_make = input.trim();
+    let where_to_make = if input_where_to_make.is_empty() {
+        path::Path::new(&config["generating_location"])
+    } else {
+        path::Path::new(&input_where_to_make)
+    };
+    println!("test1 {:?}", &where_to_make);
     let new_addon = AddonTemplate {
         addon_name,
         author_name,
         where_to_make,
         using_template_dir,
     };
-    println!("{}", tl["input_location"]);
-    println!("{}", tl["if_you_enter_nothing"]);
-    print!("{}>", "addon_template_path");
-    io::stdout().flush().unwrap();
-    let mut where_to_generate = String::new();
-    io::stdin().read_line(&mut where_to_generate).unwrap();
+    new_addon.generate_addon();
     println!("---");
     println!("{} {}", tl["result_addon_name"], &new_addon.addon_name);
     println!("{} {}", tl["result_author_name"], &new_addon.author_name);
     println!("---");
-    new_addon.generate_addon();
 }
 
 fn main() {
