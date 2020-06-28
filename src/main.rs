@@ -17,12 +17,6 @@ struct AddonTemplate<'a> {
 
 impl<'a> AddonTemplate<'a> {
     fn generate_addon<'b>(&'b self) {
-        println!("ge1: {:?}", self.using_template_dir);
-        println!("ge2: {:?}", self.where_to_make.join(self.addon_name));
-        println!(
-            "readdir: {:?}",
-            fs::read_dir(self.using_template_dir.join("templateBP")).unwrap()
-        );
         fs::create_dir(self.where_to_make.join(self.addon_name));
         self.generate_behavior_pack();
         self.generate_resource_pack();
@@ -170,7 +164,6 @@ fn navigate() {
     } else {
         path::Path::new(&input_where_to_make)
     };
-    println!("test1 {:?}", &where_to_make);
     let new_addon = AddonTemplate {
         addon_name,
         author_name,
