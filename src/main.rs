@@ -6,7 +6,6 @@ use std::fs;
 use std::io::BufReader;
 use std::io::{self, Write};
 use std::path;
-use std::ffi::OsString;
 use uuid::Uuid;
 
 struct AddonTemplate<'a> {
