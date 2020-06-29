@@ -4,6 +4,7 @@ use std::collections::HashMap;
 use std::env;
 use std::fs;
 use std::io::BufReader;
+use std::io::ErrorKind;
 use std::io::{self, Write};
 use std::path;
 use uuid::Uuid;
@@ -108,12 +109,12 @@ impl<'a> AddonTemplate<'a> {
     }
 }
 
-fn load_config(file_dir: &path::Path) -> HashMap<String, String> {
+fn load_config(file_dir: &path::Path) -> Result<HashMap<String, String>, std::io::Error> {
     let file_path = file_dir.join("config.json");
-    let config_file = fs::File::open(file_path).unwrap();
+    let config_file = fs::File::open(file_path)?;
     let reader = BufReader::new(config_file);
     let config: HashMap<String, String> = serde_json::from_reader(reader).unwrap();
-    config
+    Ok(config)
 }
 
 fn load_translation(language: &str, file_dir: &path::Path) -> HashMap<String, String> {
@@ -127,6 +128,14 @@ fn load_translation(language: &str, file_dir: &path::Path) -> HashMap<String, St
 fn navigate() {
     let cur_exe_dir = &env::current_exe().unwrap();
     let config = load_config(&path::Path::new(&cur_exe_dir).parent().unwrap());
+    let config = match config {
+        Ok(config_data) => config_data,
+        Err(error) if error.kind() == ErrorKind::NotFound => panic!(
+            "{} note: maybe that is config.json(configuration file of application)",
+            error
+        ),
+        Err(error) => panic!("{}", error),
+    };
     println!("cur_exe: {:?}", env::current_exe().unwrap());
     let translation_file_dir = path::Path::new(&env::current_exe().unwrap())
         .parent()
@@ -135,7 +144,6 @@ fn navigate() {
     let tl = load_translation(&config["language"], &translation_file_dir);
     println!("{}", tl["title"]);
     println!("{}", tl["credit"]);
-
     print!("{}", tl["input_addon_name"]);
     io::stdout().flush().unwrap();
     let mut addon_name = String::new();
