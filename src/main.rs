@@ -6,6 +6,7 @@ use std::fs;
 use std::io::BufReader;
 use std::io::ErrorKind;
 use std::io::{self, Write};
+use std::io::{stdin, stdout, Read};
 use std::path;
 use uuid::Uuid;
 
@@ -17,10 +18,11 @@ struct AddonTemplate<'a> {
 }
 
 impl<'a> AddonTemplate<'a> {
-    fn generate_addon<'b>(&'b self) {
-        fs::create_dir(self.where_to_make.join(self.addon_name));
+    fn generate_addon<'b>(&'b self) -> Result<(), io::Error> {
+        fs::create_dir(self.where_to_make.join(self.addon_name))?;
         self.generate_behavior_pack();
         self.generate_resource_pack();
+        Ok(())
     }
 
     fn generate_behavior_pack<'b>(&'b self) {
@@ -80,7 +82,7 @@ impl<'a> AddonTemplate<'a> {
                 ]
             }
         );
-        return rp_manifest;
+        rp_manifest
     }
     fn behavior_pack_manifest<'b>(&'b self) -> serde_json::Value {
         let bp_uuid = Uuid::new_v4();
@@ -105,8 +107,15 @@ impl<'a> AddonTemplate<'a> {
                 ]
             }
         );
-        return bp_manifest;
+        bp_manifest
     }
+}
+
+fn pause() {
+    let mut stdout = stdout();
+    stdout.write(b"Press Enter to continue...").unwrap();
+    stdout.flush().unwrap();
+    stdin().read(&mut [0]).unwrap();
 }
 
 fn load_config(file_dir: &path::Path) -> Result<HashMap<String, String>, std::io::Error> {
@@ -117,12 +126,15 @@ fn load_config(file_dir: &path::Path) -> Result<HashMap<String, String>, std::io
     Ok(config)
 }
 
-fn load_translation(language: &str, file_dir: &path::Path) -> HashMap<String, String> {
+fn load_translation(
+    language: &str,
+    file_dir: &path::Path,
+) -> Result<HashMap<String, String>, std::io::Error> {
     let file_path = file_dir.join(format!("{}.json", language));
-    let translation_file = fs::File::open(file_path).unwrap();
+    let translation_file = fs::File::open(file_path)?;
     let reader = BufReader::new(translation_file);
     let tl: HashMap<String, String> = serde_json::from_reader(reader).unwrap();
-    tl
+    Ok(tl)
 }
 
 fn navigate() {
@@ -130,18 +142,30 @@ fn navigate() {
     let config = load_config(&path::Path::new(&cur_exe_dir).parent().unwrap());
     let config = match config {
         Ok(config_data) => config_data,
-        Err(error) if error.kind() == ErrorKind::NotFound => panic!(
-            "{} note: maybe that is config.json(configuration file of application)",
-            error
-        ),
+        Err(error) if error.kind() == ErrorKind::NotFound => {
+            println!(
+                "Error: The config.json was not found. \n
+                 Please put it at same directry as the application."
+            );
+            pause();
+            panic!("{}", error)
+        }
         Err(error) => panic!("{}", error),
     };
-    println!("cur_exe: {:?}", env::current_exe().unwrap());
     let translation_file_dir = path::Path::new(&env::current_exe().unwrap())
         .parent()
         .unwrap()
         .join("translation");
     let tl = load_translation(&config["language"], &translation_file_dir);
+    let tl = match tl {
+        Ok(translation) => translation,
+        Err(error) if error.kind() == ErrorKind::NotFound => {
+            println!("Error: the translation file was not found.");
+            pause();
+            panic!("{}", error)
+        }
+        Err(error) => panic!("{}", error),
+    };
     println!("{}", tl["title"]);
     println!("{}", tl["credit"]);
     print!("{}", tl["input_addon_name"]);
