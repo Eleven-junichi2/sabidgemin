@@ -20,18 +20,18 @@ struct AddonTemplate<'a> {
 impl<'a> AddonTemplate<'a> {
     fn generate_addon<'b>(&'b self) -> Result<(), io::Error> {
         fs::create_dir(self.where_to_make.join(self.addon_name))?;
-        self.generate_behavior_pack();
-        self.generate_resource_pack();
+        self.generate_behavior_pack()?;
+        self.generate_resource_pack()?;
         Ok(())
     }
 
-    fn generate_behavior_pack<'b>(&'b self) {
+    fn generate_behavior_pack<'b>(&'b self) -> Result<(), io::Error> {
         copy_dir::copy_dir(
             self.using_template_dir.join("templateBP"),
             self.where_to_make
                 .join(self.addon_name)
                 .join(format!("{}BP", self.addon_name)),
-        );
+        )?;
         let manifest_json = self.behavior_pack_manifest();
         let manifest_writer = fs::File::create(
             self.where_to_make
@@ -40,15 +40,16 @@ impl<'a> AddonTemplate<'a> {
                 .join("manifest.json"),
         )
         .unwrap();
-        serde_json::to_writer_pretty(manifest_writer, &manifest_json);
+        serde_json::to_writer_pretty(manifest_writer, &manifest_json)?;
+        Ok(())
     }
-    fn generate_resource_pack<'b>(&'b self) {
+    fn generate_resource_pack<'b>(&'b self) -> Result<(), io::Error> {
         copy_dir::copy_dir(
             self.using_template_dir.join("templateRP"),
             self.where_to_make
                 .join(self.addon_name)
                 .join(format!("{}RP", self.addon_name)),
-        );
+        )?;
         let manifest_json = self.resource_pack_manifest();
         let manifest_writer = fs::File::create(
             self.where_to_make
@@ -57,7 +58,8 @@ impl<'a> AddonTemplate<'a> {
                 .join("manifest.json"),
         )
         .unwrap();
-        serde_json::to_writer_pretty(manifest_writer, &manifest_json);
+        serde_json::to_writer_pretty(manifest_writer, &manifest_json)?;
+        Ok(())
     }
     fn resource_pack_manifest<'b>(&'b self) -> serde_json::Value {
         let rp_uuid = Uuid::new_v4();
@@ -118,7 +120,7 @@ fn pause() {
     stdin().read(&mut [0]).unwrap();
 }
 
-fn load_config(file_dir: &path::Path) -> Result<HashMap<String, String>, std::io::Error> {
+fn load_config(file_dir: &path::Path) -> Result<HashMap<String, String>, io::Error> {
     let file_path = file_dir.join("config.json");
     let config_file = fs::File::open(file_path)?;
     let reader = BufReader::new(config_file);
@@ -129,7 +131,7 @@ fn load_config(file_dir: &path::Path) -> Result<HashMap<String, String>, std::io
 fn load_translation(
     language: &str,
     file_dir: &path::Path,
-) -> Result<HashMap<String, String>, std::io::Error> {
+) -> Result<HashMap<String, String>, io::Error> {
     let file_path = file_dir.join(format!("{}.json", language));
     let translation_file = fs::File::open(file_path)?;
     let reader = BufReader::new(translation_file);
@@ -137,7 +139,7 @@ fn load_translation(
     Ok(tl)
 }
 
-fn navigate() {
+fn navigate() -> Result<(), io::Error> {
     let cur_exe_dir = &env::current_exe().unwrap();
     let config = load_config(&path::Path::new(&cur_exe_dir).parent().unwrap());
     let config = match config {
@@ -202,13 +204,15 @@ fn navigate() {
         where_to_make,
         using_template_dir,
     };
-    new_addon.generate_addon();
+    new_addon.generate_addon()?;
     println!("---");
     println!("{} {}", tl["result_addon_name"], &new_addon.addon_name);
     println!("{} {}", tl["result_author_name"], &new_addon.author_name);
     println!("---");
+    Ok(())
 }
 
-fn main() {
-    navigate();
+fn main() -> Result<(), io::Error> {
+    navigate()?;
+    Ok(())
 }
