@@ -14,5 +14,5 @@
     "conf_err": "config.jsonの設定が正しくありません",
     "conf_err_how_to_solve": "config.jsonをテキストエディタで開いて修正してください",
     "conf_err_gen_location": "generating_locationに設定されているパスが正しくありません:",
-    "conf_not_found_err": "config.json(アプリケーションの設定ファイル)が見つかりませんでした。アプリケーションと同じディレクトリに置いてください。"
+    "path_not_exist_err": "そのファイルパスは存在しません:"
 }

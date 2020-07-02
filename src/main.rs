@@ -139,7 +139,7 @@ fn load_translation(
     Ok(tl)
 }
 
-fn navigate() -> Result<(), io::Error> {
+fn navigate() {
     let cur_exe_dir = &env::current_exe().unwrap();
     let config = load_config(&path::Path::new(&cur_exe_dir).parent().unwrap());
     let config = match config {
@@ -170,49 +170,61 @@ fn navigate() -> Result<(), io::Error> {
     };
     println!("{}", tl["title"]);
     println!("{}", tl["credit"]);
-    print!("{}", tl["input_addon_name"]);
-    io::stdout().flush().unwrap();
-    let mut addon_name = String::new();
-    io::stdin().read_line(&mut addon_name).unwrap();
-    let addon_name = addon_name.trim();
-
-    print!("{}", tl["input_author_name"]);
-    io::stdout().flush().unwrap();
-    let mut author_name = String::new();
-    io::stdin().read_line(&mut author_name).unwrap();
-    let author_name = author_name.trim();
-    path::Path::new(&config["generating_location"]);
-    let using_template_dir = &path::Path::new(&cur_exe_dir)
-        .parent()
-        .unwrap()
-        .join("addon_template");
-    println!("{}", tl["input_location"]);
-    println!("{}", tl["if_you_enter_nothing"]);
-    print!("{}>", &config["generating_location"]);
-    io::stdout().flush().unwrap();
-    let mut input = String::new();
-    io::stdin().read_line(&mut input).unwrap();
-    let input_where_to_make = input.trim();
-    let where_to_make = if input_where_to_make.is_empty() {
-        path::Path::new(&config["generating_location"])
-    } else {
-        path::Path::new(&input_where_to_make)
-    };
-    let new_addon = AddonTemplate {
-        addon_name,
-        author_name,
-        where_to_make,
-        using_template_dir,
-    };
-    new_addon.generate_addon()?;
-    println!("---");
-    println!("{} {}", tl["result_addon_name"], &new_addon.addon_name);
-    println!("{} {}", tl["result_author_name"], &new_addon.author_name);
-    println!("---");
-    Ok(())
+    loop {
+        //input addon information
+        print!("{}", tl["input_addon_name"]);
+        io::stdout().flush().unwrap();
+        let mut addon_name = String::new();
+        io::stdin().read_line(&mut addon_name).unwrap();
+        let addon_name = addon_name.trim();
+        print!("{}", tl["input_author_name"]);
+        io::stdout().flush().unwrap();
+        let mut author_name = String::new();
+        io::stdin().read_line(&mut author_name).unwrap();
+        let author_name = author_name.trim();
+        path::Path::new(&config["generating_location"]);
+        let using_template_dir = &path::Path::new(&cur_exe_dir)
+            .parent()
+            .unwrap()
+            .join("addon_template");
+        println!("{}", tl["input_location"]);
+        println!("{}", tl["if_you_enter_nothing"]);
+        print!("{}>", &config["generating_location"]);
+        io::stdout().flush().unwrap();
+        let mut input = String::new();
+        io::stdin().read_line(&mut input).unwrap();
+        let input_where_to_make = input.trim();
+        let where_to_make = if input_where_to_make.is_empty() {
+            path::Path::new(&config["generating_location"])
+        } else {
+            path::Path::new(&input_where_to_make)
+        };
+        let new_addon = AddonTemplate {
+            addon_name,
+            author_name,
+            where_to_make,
+            using_template_dir,
+        };
+        match new_addon.generate_addon() {
+            Ok(_) => (),
+            Err(error) => {
+                if error.kind() == ErrorKind::NotFound {
+                    println!("{} {}", tl["path_not_exist_err"], where_to_make.display());
+                    continue;
+                } else {
+                    panic!("{}", error);
+                }
+            }
+        };
+        println!("---");
+        println!("{} {}", tl["result_addon_name"], &new_addon.addon_name);
+        println!("{} {}", tl["result_author_name"], &new_addon.author_name);
+        println!("---");
+        break
+    }
 }
 
 fn main() -> Result<(), io::Error> {
-    navigate()?;
+    navigate();
     Ok(())
 }

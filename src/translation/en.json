@@ -14,5 +14,5 @@
     "conf_err": "error: please fix config.json",
     "conf_err_how_to_solve": "open config.json with text editor and fix:",
     "conf_err_gen_location": "generating_location:",
-    "conf_not_found_err": "The config.json(configuration file of application) was not found. Please put it at same directry as the application."
+    "path_not_exist_err": "The file path does not exist:"
 }
