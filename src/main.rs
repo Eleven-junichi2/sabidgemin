@@ -38,8 +38,7 @@ impl<'a> AddonTemplate<'a> {
                 .join(self.addon_name)
                 .join(format!("{}BP", self.addon_name))
                 .join("manifest.json"),
-        )
-        .unwrap();
+        )?;
         serde_json::to_writer_pretty(manifest_writer, &manifest_json)?;
         Ok(())
     }
@@ -56,8 +55,7 @@ impl<'a> AddonTemplate<'a> {
                 .join(self.addon_name)
                 .join(format!("{}RP", self.addon_name))
                 .join("manifest.json"),
-        )
-        .unwrap();
+        )?;
         serde_json::to_writer_pretty(manifest_writer, &manifest_json)?;
         Ok(())
     }
@@ -115,7 +113,6 @@ impl<'a> AddonTemplate<'a> {
 
 fn pause() {
     let mut stdout = stdout();
-    stdout.write(b"Press Enter to continue...").unwrap();
     stdout.flush().unwrap();
     stdin().read(&mut [0]).unwrap();
 }
@@ -208,18 +205,25 @@ fn navigate() {
         match new_addon.generate_addon() {
             Ok(_) => (),
             Err(error) => {
-                if error.kind() == ErrorKind::NotFound {
-                    println!("{} {}", tl["path_not_exist_err"], where_to_make.display());
-                    continue;
-                } else {
-                    panic!("{}", error);
+                match error.kind() {
+                    ErrorKind::NotFound => {
+                        println!("{} {}", tl["path_not_exist_err"], where_to_make.display());
+                        continue;
+                    },
+                    ErrorKind::AlreadyExists => {
+                        println!("{} {}", tl["addon_is_already_exist_err"], addon_name);
+                        continue;
+                    },
+                    _ => panic!("{}", error)
                 }
             }
         };
         println!("---");
         println!("{} {}", tl["result_addon_name"], &new_addon.addon_name);
         println!("{} {}", tl["result_author_name"], &new_addon.author_name);
+        println!("{} {}", tl["result_generated_in"], &new_addon.where_to_make.display());
         println!("---");
+        pause();
         break
     }
 }

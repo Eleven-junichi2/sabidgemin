@@ -9,7 +9,7 @@
     "location_not_dir": "This directory is not exists.\n",
     "result_addon_name": "Addon's name:",
     "result_author_name": "Author:",
-    "successfully": "Successfully generated at ",
+    "result_generated_at": "Successfully generated in",
     "exit": "Press enter to exit> ",
     "conf_err": "error: please fix config.json",
     "conf_err_how_to_solve": "open config.json with text editor and fix:",
