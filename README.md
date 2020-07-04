@@ -4,4 +4,4 @@
 minecraft add-on template generator.
 This is Rust version of [adgemin](https://github.com/Eleven-junichi2/adgemin/blob/master/README.md)
 ## Download
-- Download link → WIP
+- Download link → https://github.com/Eleven-junichi2/sabidgemin/releases

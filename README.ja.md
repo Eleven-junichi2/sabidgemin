@@ -7,7 +7,7 @@
 実行したときに案内が表示されます。
 デフォルトだと英語で表示されます。readme(使い方).txtに表示を日本語に変更する方法を載せています。
 ## ダウンロード(Windows)
-- Download link → 準備中
+- Download link → https://github.com/Eleven-junichi2/sabidgemin/releases
 フォルダはzip形式で圧縮しています。
 解凍して好きな場所に配置してください。
 実行ファイルはsabidgemin.exeという名前です。
