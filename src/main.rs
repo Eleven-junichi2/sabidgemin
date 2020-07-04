@@ -28,6 +28,7 @@ fn load_translation(
     language: &str,
     file_dir: &path::Path,
 ) -> Result<HashMap<String, String>, io::Error> {
+    println!("tl file path: {}", file_dir.display());
     let file_path = file_dir.join(format!("{}.json", language));
     let translation_file = fs::File::open(file_path)?;
     let reader = BufReader::new(translation_file);
@@ -84,13 +85,19 @@ fn navigate() {
             .unwrap()
             .join("addon_template");
         println!("{}", tl["input_location"]);
-        println!("{}", tl["if_you_enter_nothing"]);
-        print!("{}>", &config["generating_location"]);
+        if !config["generating_location"].is_empty() {
+            println!("{}", tl["if_you_enter_nothing"]);
+            print!("{}>", &config["generating_location"]);
+        }
         io::stdout().flush().unwrap();
         let mut input = String::new();
         io::stdin().read_line(&mut input).unwrap();
         let input_where_to_make = input.trim();
         let where_to_make = if input_where_to_make.is_empty() {
+            if config["generating_location"].is_empty() {
+                println!("{}", tl["generating_location_is_empty"]);
+                continue;
+            }
             path::Path::new(&config["generating_location"])
         } else {
             path::Path::new(&input_where_to_make)
@@ -103,27 +110,29 @@ fn navigate() {
         };
         match new_addon.generate_addon() {
             Ok(_) => (),
-            Err(error) => {
-                match error.kind() {
-                    ErrorKind::NotFound => {
-                        println!("{} {}", tl["path_not_exist_err"], where_to_make.display());
-                        continue;
-                    },
-                    ErrorKind::AlreadyExists => {
-                        println!("{} {}", tl["addon_is_already_exist_err"], addon_name);
-                        continue;
-                    },
-                    _ => panic!("{}", error)
+            Err(error) => match error.kind() {
+                ErrorKind::NotFound => {
+                    println!("{} {}", tl["path_not_exist_err"], where_to_make.display());
+                    continue;
                 }
-            }
+                ErrorKind::AlreadyExists => {
+                    println!("{} {}", tl["addon_is_already_exist_err"], addon_name);
+                    continue;
+                }
+                _ => panic!("{}", error),
+            },
         };
         println!("---");
         println!("{} {}", tl["result_addon_name"], &new_addon.addon_name);
         println!("{} {}", tl["result_author_name"], &new_addon.author_name);
-        println!("{} {}", tl["result_generated_in"], &new_addon.where_to_make.display());
+        println!(
+            "{} {}",
+            tl["result_generated_in"],
+            &new_addon.where_to_make.display()
+        );
         println!("---");
         pause();
-        break
+        break;
     }
 }
 

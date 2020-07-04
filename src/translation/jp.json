@@ -15,5 +15,6 @@
     "conf_err_how_to_solve": "config.jsonをテキストエディタで開いて修正してください",
     "conf_err_gen_location": "generating_locationに設定されているパスが正しくありません:",
     "path_not_exist_err": "そのファイルパスは存在しません:",
-    "addon_is_already_exist_err": "その名前のアドオンは既に存在しています:"
+    "addon_is_already_exist_err": "その名前のアドオンは既に存在しています:",
+    "generating_location_is_empty": "何も入力されていません、アドオンを生成する場所を入力してください"
 }
