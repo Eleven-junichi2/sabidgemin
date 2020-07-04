@@ -19,7 +19,6 @@ impl<'a> AddonTemplate<'a> {
         self.generate_resource_pack()?;
         Ok(())
     }
-
     fn generate_behavior_pack<'b>(&'b self) -> Result<(), io::Error> {
         copy_dir::copy_dir(
             self.using_template_dir.join("templateBP"),
@@ -104,4 +103,26 @@ impl<'a> AddonTemplate<'a> {
         );
         bp_manifest
     }
+}
+
+#[allow(unused_must_use)]
+#[test]
+fn test_generate_addon() {
+    use std::env;
+    let project_dir = path::Path::new(env!("CARGO_MANIFEST_DIR"));
+    let addon_name = "test";
+    let author_name = "test";
+    let where_to_make = &project_dir.join("tests").join("dir_for_test_file_io");
+    let using_template_dir = &project_dir.join("src").join("addon_template");
+    let addon_template = AddonTemplate {
+        addon_name,
+        author_name,
+        where_to_make,
+        using_template_dir
+    };
+    addon_template.generate_addon();
+    assert!(where_to_make.join(addon_name).exists());
+    assert!(where_to_make.join(addon_name).join(format!("{}BP", addon_name)).exists());
+    assert!(where_to_make.join(addon_name).join(format!("{}RP", addon_name)).exists());
+    fs::remove_dir_all(where_to_make.join(addon_name));
 }
